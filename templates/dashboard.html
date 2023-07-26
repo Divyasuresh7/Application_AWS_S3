@@ -70,13 +70,18 @@
         <h1>Dashboard</h1>
         <div class="dropdown">
             <select id="dashboard-select">
+                <option value="">Select an option</option>
                 <option value="outstanding">Outstanding</option>
                 <option value="payment">Payment Creation</option>
                 <option value="sales">Sales Data</option>
             </select>
         </div>
+        <input type="file" id="file-input" style="display: none;">
         <a href="#" class="upload-button" id="upload-button">Upload File</a>
+        <p id="upload-message" style="display: none; color: red;">Please check the file.</p>
+        <p id="success-message" style="display: none; color: rgb(39, 225, 39);">File uploaded successfully</p>
         <div class="dashboard-content">
+            <!-- The rest of the content remains unchanged -->
             <div id="outstanding-content" style="display: none;">
                 <!-- Content for Outstanding option -->
                 <p>This is the content for the Outstanding option.</p>
@@ -103,20 +108,31 @@
         });
 
         document.getElementById("upload-button").addEventListener("click", function () {
-            var fileInput = document.createElement("input");
-            fileInput.type = "file";
-            fileInput.accept = ".txt,.csv"; // Add accepted file types here if needed
-            fileInput.style.display = "none";
+            document.getElementById("file-input").click();
+        });
 
-            fileInput.addEventListener("change", function (event) {
-                var file = event.target.files[0];
-                // Code to handle the uploaded file
-                console.log("File uploaded:", file.name);
-            });
+        document.getElementById("file-input").addEventListener("change", function (event) {
+            var file = event.target.files[0];
 
-            document.body.appendChild(fileInput);
-            fileInput.click();
-            document.body.removeChild(fileInput);
+            if (!file) {
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var contents = e.target.result;
+                if (contents.includes("USERNAME") && contents.includes("PASSWORD")) {
+                    // Columns "USERNAME" and "PASSWORD" are present
+                    document.getElementById("upload-message").style.display = "none";
+                    // to show success message
+                    console.log("File contains the required columns.");
+                    document.getElementById("success-message").style.display = "block";
+                } else {
+                    // Columns "USERNAME" and "PASSWORD" are not present, show an error message
+                    document.getElementById("upload-message").style.display = "block";
+                }
+            };
+
+            reader.readAsText(file);
         });
     </script>
 </body>
