@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #100808;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .dashboard-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .dropdown {
+            display: inline-block;
+        }
+
+        .dropdown select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .dashboard-content {
+            margin-top: 20px;
+            max-width: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Dashboard</h1>
+        <div class="dropdown">
+            <select id="dashboard-select">
+                <option value="outstanding">Outstanding</option>
+                <option value="payment">Payment Creation</option>
+                <option value="sales">Sales Data</option>
+            </select>
+        </div>
+        <div class="dashboard-content">
+            <div id="outstanding-content" style="display: none;">
+                <!-- Content for Outstanding option -->
+                <p>This is the content for the Outstanding option.</p>
+            </div>
+            <div id="payment-content" style="display: none;">
+                <!-- Content for Payment Creation option -->
+                <p>This is the content for the Payment Creation option.</p>
+            </div>
+            <div id="sales-content" style="display: none;">
+                <!-- Content for Sales Data option -->
+                <p>This is the content for the Sales Data option.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("dashboard-select").addEventListener("change", function () {
+            var selectedValue = this.value;
+            var contentDivs = document.getElementsByClassName("dashboard-content");
+            for (var i = 0; i < contentDivs.length; i++) {
+                contentDivs[i].style.display = "none";
+            }
+            document.getElementById(selectedValue + "-content").style.display = "block";
+        });
+    </script>
+</body>
+</html>
