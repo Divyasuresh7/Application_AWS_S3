@@ -6,13 +6,13 @@ app = Flask(__name__)
 # Replace these values with your Active Directory server and domain details
 # AD_SERVER = 'ldap://your_ad_server_address'
 # AD_SERVER = 'ldap://OTMUMACKADC.orient.com'
-AD_SERVER = 'ldap://127.0.0.1:5000/'
+AD_SERVER = 'ldap://OTMUMBDCPRD.orient.com/'
 BASE_DN = 'OU=Users,DC=orient,DC=com'
 
 def validate_credentials(username, password):
     try:
         conn = ldap3.Connection(
-            AD_SERVER, user=f'{username}@orient.com', password=password, auto_bind=True
+            AD_SERVER, user=f'{username}', password=password, auto_bind=True
         )
         conn.search(
             search_base=BASE_DN,
@@ -37,7 +37,7 @@ def validate_credentials(username, password):
 def index():
     return render_template('login.html')
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET','POST'])
 def login():
     username = request.json.get('username')
     password = request.json.get('password')

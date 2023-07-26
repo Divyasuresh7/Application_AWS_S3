@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #100808;
+            background-color: #0a0202;
             margin: 0;
             padding: 0;
             display: flex;
@@ -17,29 +17,51 @@
         }
 
         .dashboard-container {
-            background-color: white;
+            background-color: #ffffff;
             padding: 30px;
             border-radius: 5px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             max-width: 400px;
             width: 100%;
             text-align: center;
+            align-items: center;
         }
 
         .dropdown {
             display: inline-block;
+            margin-bottom: 10px;
+            width: 250px;
         }
 
         .dropdown select {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            width: 250px;
+        }
+
+        .upload-button {
+            display: block;
+            width: 230px;
+            padding: 10px;
+            background-color: #0882c8;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            text-align: center;
+            text-decoration: none;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .upload-button:hover {
+            background-color: #0cd74c;
         }
 
         .dashboard-content {
             margin-top: 20px;
-            max-width: 400px;
-            width: 100%;
         }
     </style>
 </head>
@@ -53,6 +75,7 @@
                 <option value="sales">Sales Data</option>
             </select>
         </div>
+        <a href="#" class="upload-button" id="upload-button">Upload File</a>
         <div class="dashboard-content">
             <div id="outstanding-content" style="display: none;">
                 <!-- Content for Outstanding option -->
@@ -78,6 +101,24 @@
             }
             document.getElementById(selectedValue + "-content").style.display = "block";
         });
+
+        document.getElementById("upload-button").addEventListener("click", function () {
+            var fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = ".txt,.csv"; // Add accepted file types here if needed
+            fileInput.style.display = "none";
+
+            fileInput.addEventListener("change", function (event) {
+                var file = event.target.files[0];
+                // Code to handle the uploaded file
+                console.log("File uploaded:", file.name);
+            });
+
+            document.body.appendChild(fileInput);
+            fileInput.click();
+            document.body.removeChild(fileInput);
+        });
     </script>
 </body>
 </html>
+
