@@ -1,34 +1,23 @@
 from flask import Flask, request, jsonify, render_template
-import ldap3
+from ldap3 import Server, Connection, ALL
 
 app = Flask(__name__)
 
-# Replace these values with your Active Directory server and domain details
-# AD_SERVER = 'ldap://your_ad_server_address'
-# AD_SERVER = 'ldap://OTMUMACKADC.orient.com'
-AD_SERVER = 'ldap://OTMUMBDCPRD.orient.com/'
-BASE_DN = 'OU=Users,DC=orient,DC=com'
+AD_SERVER = 'OTMUMBDCPRD.orient.com'
+AD_PORT = 389  # The default LDAP port for AD is 389
+AD_BASE_DN = 'DC=orient,DC=com'  
 
 def validate_credentials(username, password):
     try:
-        conn = ldap3.Connection(
-            AD_SERVER, user=f'{username}', password=password, auto_bind=True
-        )
-        conn.search(
-            search_base=BASE_DN,
-            search_filter=f'(sAMAccountName={username})',
-            attributes=['cn'],
-        )
+        # Creating a connection to the Active Directory server
+        server = Server(AD_SERVER, port=AD_PORT, get_info=ALL)
+        conn = Connection(server, user=f"{username}@orient.com", password=password)
 
-        if conn.entries:
-            # Authentication successful
+        # Binding to the server to check the credentials
+        if conn.bind():
             return True
         else:
-            # Authentication failed
             return False
-    except ldap3.core.exceptions.LDAPBindError:
-        # Connection error or invalid credentials
-        return False
     except Exception as e:
         print(f"An error occurred: {e}")
         return False
@@ -37,7 +26,7 @@ def validate_credentials(username, password):
 def index():
     return render_template('login.html')
 
-@app.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['POST'])
 def login():
     username = request.json.get('username')
     password = request.json.get('password')
@@ -46,11 +35,11 @@ def login():
         if validate_credentials(username, password):
             return jsonify({'success': True})
         else:
-            return jsonify({'success': False})
+            return jsonify({'success': False, 'message': 'Invalid credentials'})
 
-    return jsonify({'success': False})
+    return jsonify({'success': False, 'message': 'Username and password are required'})
 
-@app.route('/dashboard', methods=['GET','POST'])
+@app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
 
