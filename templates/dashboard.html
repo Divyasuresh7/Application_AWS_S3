@@ -102,12 +102,20 @@
         });
 
         document.getElementById("upload-button").addEventListener("click", function () {
-            // Check if the user has already set the template
-            if (!localStorage.getItem("template_set")) {
-                var template = prompt("Enter the required template for the file upload.\nExample: USERNAME:string, PASSWORD:int");
-                // Save the template in local storage
-                localStorage.setItem("template", template);
-                localStorage.setItem("template_set", true);
+            var selectedOption = document.getElementById("dashboard-select").value;
+            var templateKey = "template_" + selectedOption;
+            // Check if the template has already been set for this dropdown option
+            var template = localStorage.getItem(templateKey);
+
+            if (!template) {
+                template = prompt("Enter the required template for the file upload.\nExample: USERNAME:string, PASSWORD:int");
+
+                if (!template) {
+                    return; // If the user cancels the prompt, do nothing
+                }
+
+                // Save the template in local storage for future use
+                localStorage.setItem(templateKey, template);
             }
 
             document.getElementById("file-input").click();
@@ -139,7 +147,7 @@
                     var selectedOption = document.getElementById("dashboard-select").value;
                     uploadFileToServer(file, selectedOption);
                 } else {
-                    // Columns "USERNAME" and "PASSWORD" are not present, show an error message
+                    // Columns are not present, show an error message
                     document.getElementById("upload-message").style.display = "block";
                 }
             };
