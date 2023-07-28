@@ -49,11 +49,16 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template('dashboard.html')
+    folders = get_upload_folders()
+    return render_template('dashboard.html', folders=folders)
 
 ALLOWED_EXTENSIONS = {'txt', 'csv', 'xlsx'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def get_upload_folders():
+    UPLOAD_FOLDER = "C:/Users/Divya Suresh/GITHUB_UPLOAD_PROJECTS/UPLOAD"
+    return [name for name in os.listdir(UPLOAD_FOLDER) if os.path.isdir(os.path.join(UPLOAD_FOLDER, name))]
 
 @app.route('/upload', methods=['POST'])
 def upload():
@@ -68,7 +73,8 @@ def upload():
     if file and allowed_file(file.filename):
         selected_option = request.form.get('selected_option')
 
-        if not selected_option or selected_option not in {'Outstanding', 'Payment Creation', 'Sales Data'}:
+        folders = get_upload_folders()
+        if not selected_option or selected_option not in folders:
             return jsonify({'message': 'Invalid selected option'}), 400
 
         UPLOAD_FOLDER = "C:/Users/Divya Suresh/GITHUB_UPLOAD_PROJECTS/UPLOAD"

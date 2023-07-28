@@ -71,9 +71,9 @@
         <div class="dropdown">
             <select id="dashboard-select">
                 <option disabled selected value>Select an option</option>
-                <option value="Outstanding">Outstanding</option>
-                <option value="Payment Creation">Payment Creation</option>
-                <option value="Sales Data">Sales Data</option>
+                {% for folder in folders %}
+                    <option value="{{ folder }}">{{ folder }}</option>
+                {% endfor %}
             </select>
         </div>
         <input type="file" id="file-input" style="display: none;">
@@ -81,18 +81,12 @@
         <p id="upload-message" style="display: none; color: red;">Please check the file.</p>
         <p id="success-message" style="display: none; color: rgb(39, 225, 39);">File uploaded successfully</p>
         <div class="dashboard-content">
-            <div id="outstanding-content" style="display: none;">
-                <!-- Content for Outstanding option -->
-                <p>This is the content for the Outstanding option.</p>
-            </div>
-            <div id="payment-content" style="display: none;">
-                <!-- Content for Payment Creation option -->
-                <p>This is the content for the Payment Creation option.</p>
-            </div>
-            <div id="sales-content" style="display: none;">
-                <!-- Content for Sales Data option -->
-                <p>This is the content for the Sales Data option.</p>
-            </div>
+            {% for folder in folders %}
+                <div id="{{ folder }}-content" style="display: none;">
+                    <!-- Content for each folder option -->
+                    <p>This is the content for {{ folder }} option.</p>
+                </div>
+            {% endfor %}
         </div>
     </div>
 
