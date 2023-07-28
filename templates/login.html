@@ -31,7 +31,7 @@
         .login-container h1 {
             text-align: center;
             margin-bottom: 20px;
-            color: #07436b;
+            color: #0099ff;
         }
 
         .form-group {
@@ -65,7 +65,6 @@
             color: #fff;
             font-weight: bold;
             font-size: medium;
-            font-family: 'Times New Roman', Times, serif;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -104,11 +103,9 @@
             var username = document.getElementById('username').value;
             var password = document.getElementById('password').value;
             //print(username);
-
             // Perform AJAX request to the server-side script to validate credentials
-            // Replace 'server_login_endpoint' with the URL of your server-side script handling the authentication
             try{
-                fetch('C:\Users\Divya Suresh\GITHUB_UPLOAD_PROJECTS\Web_Application_AWS_S3_Bucket\app.py', {
+                fetch('app.py', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
