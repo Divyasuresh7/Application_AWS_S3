@@ -111,10 +111,8 @@
                 template = prompt("Enter the required template for the file upload.\nExample: USERNAME:string, PASSWORD:int");
 
                 if (!template) {
-                    return; // If the user cancels the prompt, do nothing
+                    return; 
                 }
-
-                // Save the template in local storage for future use
                 localStorage.setItem(templateKey, template);
             }
 
