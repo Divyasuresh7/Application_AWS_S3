@@ -79,7 +79,8 @@
         <input type="file" id="file-input" style="display: none;">
         <a href="#" class="upload-button" id="upload-button">Upload File</a>
         <p id="upload-message" style="display: none; color: red;">Please check the file.</p>
-        <p id="success-message" style="display: none; color: rgb(39, 225, 39);">File uploaded successfully</p>
+        <p id="success-message" style="display: none; color: rgb(24, 184, 24);">File uploaded successfully</p>
+        <p id="file-name" style="display: none; color: rgb(24, 184, 24);">Uploaded File: <span id="uploaded-file-name"></span></p>
         <div class="dashboard-content">
             {% for folder in folders %}
                 <div id="{{ folder }}-content" style="display: none;">
@@ -120,6 +121,11 @@
                     // to show success message
                     console.log("File contains the required columns.");
                     document.getElementById("success-message").style.display = "block";
+
+                    // To get the uploaded file name
+                    var fileName = file.name;
+                    document.getElementById("file-name").style.display = "block";
+                    document.getElementById("uploaded-file-name").innerText = fileName;
 
                     // Call the function to upload the file to the server
                     var selectedOption = document.getElementById("dashboard-select").value;
