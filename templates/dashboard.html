@@ -71,9 +71,9 @@
         <div class="dropdown">
             <select id="dashboard-select">
                 <option disabled selected value>Select an option</option>
-                <option value="outstanding">Outstanding</option>
-                <option value="payment">Payment Creation</option>
-                <option value="sales">Sales Data</option>
+                <option value="Outstanding">Outstanding</option>
+                <option value="Payment Creation">Payment Creation</option>
+                <option value="Sales Data">Sales Data</option>
             </select>
         </div>
         <input type="file" id="file-input" style="display: none;">
@@ -81,7 +81,6 @@
         <p id="upload-message" style="display: none; color: red;">Please check the file.</p>
         <p id="success-message" style="display: none; color: rgb(39, 225, 39);">File uploaded successfully</p>
         <div class="dashboard-content">
-            <!-- The rest of the content remains unchanged -->
             <div id="outstanding-content" style="display: none;">
                 <!-- Content for Outstanding option -->
                 <p>This is the content for the Outstanding option.</p>
@@ -111,7 +110,8 @@
             document.getElementById("file-input").click();
         });
 
-        document.getElementById("file-input").addEventListener("change", function (event) {
+        document.getElementById("file-input").addEventListener("change", function (event) 
+        {
             var file = event.target.files[0];
 
             if (!file) {
@@ -126,6 +126,10 @@
                     // to show success message
                     console.log("File contains the required columns.");
                     document.getElementById("success-message").style.display = "block";
+
+                    // Call the function to upload the file to the server
+                    var selectedOption = document.getElementById("dashboard-select").value;
+                    uploadFileToServer(file, selectedOption);
                 } else {
                     // Columns "USERNAME" and "PASSWORD" are not present, show an error message
                     document.getElementById("upload-message").style.display = "block";
@@ -134,7 +138,25 @@
 
             reader.readAsText(file);
         });
+        function uploadFileToServer(file, selectedOption) {
+            // Create a new FormData object to send the file and selectedOption to the server
+            var formData = new FormData();
+            formData.append('file', file);
+            formData.append('selected_option', selectedOption);
+
+            // Send a POST request to the Flask server to handle the file upload
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log(result.message);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
     </script>
 </body>
 </html>
-

@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, render_template
+import os
 # from ldap3 import Server, Connection, ALL
 
 app = Flask(__name__)
@@ -46,11 +47,40 @@ def login():
 
     return jsonify({'success': False, 'message': 'Username and password are required'})
 
-
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
 
+ALLOWED_EXTENSIONS = {'txt', 'csv', 'xlsx'}
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    if 'file' not in request.files:
+        return jsonify({'message': 'No file part'}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({'message': 'No selected file'}), 400
+
+    if file and allowed_file(file.filename):
+        selected_option = request.form.get('selected_option')
+
+        if not selected_option or selected_option not in {'Outstanding', 'Payment Creation', 'Sales Data'}:
+            return jsonify({'message': 'Invalid selected option'}), 400
+
+        UPLOAD_FOLDER = "C:/Users/Divya Suresh/GITHUB_UPLOAD_PROJECTS/UPLOAD"
+        folder_path = os.path.join(UPLOAD_FOLDER, selected_option)
+        os.makedirs(folder_path, exist_ok=True)
+
+        file_path = os.path.join(folder_path, file.filename)
+        file.save(file_path)
+
+        return jsonify({'message': 'File uploaded successfully'}), 200
+    else:
+        return jsonify({'message': 'Invalid file format. Allowed formats are txt, csv, and xlsx.'}), 400
+
 if __name__ == '__main__':
     app.run(debug=True)
-
