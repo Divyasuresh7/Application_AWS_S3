@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template,session
 import os
 # from ldap3 import Server, Connection, ALL
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'
 
 # AD_SERVER = ''
 # AD_PORT = 389  # The default LDAP port for AD is 389
@@ -87,6 +88,10 @@ def upload():
         return jsonify({'message': 'File uploaded successfully'}), 200
     else:
         return jsonify({'message': 'Invalid file format. Allowed formats are txt, csv, and xlsx.'}), 400
+    
+def get_upload_folders():
+    UPLOAD_FOLDER = "C:/Users/Divya Suresh/GITHUB_UPLOAD_PROJECTS/UPLOAD"
+    return [name for name in os.listdir(UPLOAD_FOLDER) if os.path.isdir(os.path.join(UPLOAD_FOLDER, name))]
 
 if __name__ == '__main__':
     app.run(debug=True)

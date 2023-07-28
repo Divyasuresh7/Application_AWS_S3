@@ -102,6 +102,14 @@
         });
 
         document.getElementById("upload-button").addEventListener("click", function () {
+            // Check if the user has already set the template
+            if (!localStorage.getItem("template_set")) {
+                var template = prompt("Enter the required template for the file upload.\nExample: USERNAME:string, PASSWORD:int");
+                // Save the template in local storage
+                localStorage.setItem("template", template);
+                localStorage.setItem("template_set", true);
+            }
+
             document.getElementById("file-input").click();
         });
 
