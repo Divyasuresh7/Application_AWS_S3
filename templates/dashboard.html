@@ -104,23 +104,25 @@
         document.getElementById("upload-button").addEventListener("click", function () {
             var selectedOption = document.getElementById("dashboard-select").value;
             var templateKey = "template_" + selectedOption;
-            // Check if the template has already been set for this dropdown option
+
+            // Checking if the template has already been set for this dropdown option
             var template = localStorage.getItem(templateKey);
 
             if (!template) {
+                // Display the popup and take input from the user
                 template = prompt("Enter the required template for the file upload.\nExample: USERNAME:string, PASSWORD:int");
 
                 if (!template) {
                     return; 
                 }
+                // Save the template in local storage
                 localStorage.setItem(templateKey, template);
             }
 
             document.getElementById("file-input").click();
         });
 
-        document.getElementById("file-input").addEventListener("change", function (event) 
-        {
+        document.getElementById("file-input").addEventListener("change", function (event) {
             var file = event.target.files[0];
 
             if (!file) {
@@ -129,29 +131,68 @@
             var reader = new FileReader();
             reader.onload = function (e) {
                 var contents = e.target.result;
-                if (contents.includes("USERNAME") && contents.includes("PASSWORD")) {
-                    // Columns "USERNAME" and "PASSWORD" are present
-                    document.getElementById("upload-message").style.display = "none";
-                    // to show success message
-                    console.log("File contains the required columns.");
-                    document.getElementById("success-message").style.display = "block";
 
-                    // To get the uploaded file name
-                    var fileName = file.name;
+                // Get the selected option and its template from local storage
+                var selectedOption = document.getElementById("dashboard-select").value;
+                var templateKey = "template_" + selectedOption;
+                var template = localStorage.getItem(templateKey);
+
+                if (validateFileWithTemplate(contents, template)) {
+                    document.getElementById("upload-message").style.display = "none";
+                    document.getElementById("success-message").style.display = "block";
+                    document.getElementById("uploaded-file-name").innerText = file.name;
                     document.getElementById("file-name").style.display = "block";
-                    document.getElementById("uploaded-file-name").innerText = fileName;
 
                     // Call the function to upload the file to the server
-                    var selectedOption = document.getElementById("dashboard-select").value;
                     uploadFileToServer(file, selectedOption);
                 } else {
-                    // Columns are not present, show an error message
+                    // Columns do not match the template, show an error message
                     document.getElementById("upload-message").style.display = "block";
+                    document.getElementById("success-message").style.display = "none";
+                    document.getElementById("file-name").style.display = "none";
                 }
             };
 
             reader.readAsText(file);
         });
+
+        function validateFileWithTemplate(contents, template) {
+        // Split the template into individual column and data type pairs
+        var templateColumns = template.split(',');
+
+        // Create a map to store the column names and their corresponding data types
+        var columnMap = new Map();
+
+        // Parse each column and data type pair and store them in the map
+        for (var i = 0; i < templateColumns.length; i++) {
+            var columnData = templateColumns[i].trim().split(':');
+            var columnName = columnData[0].trim();
+            var dataType = columnData[1].trim().toLowerCase(); // Convert data type to lowercase
+
+            // Store the column name and data type in the map
+            columnMap.set(columnName, dataType);
+        }
+
+        // Split the contents of the uploaded file into individual rows
+        var rows = contents.split('\n');
+
+        // Get the header row (first row) from the uploaded file
+        var headerRow = rows[0].split(',');
+
+        // Check if the columns in the header row match the template
+        for (var j = 0; j < headerRow.length; j++) {
+            var columnName = headerRow[j].trim();
+            var dataType = columnMap.get(columnName);
+
+            // If the column name is not present in the map or the data type doesn't match, return false
+            if (!dataType || (dataType !== 'string' && dataType !== 'int' && dataType !== 'float')) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
         function uploadFileToServer(file, selectedOption) {
             // Create a new FormData object to send the file and selectedOption to the server
             var formData = new FormData();
