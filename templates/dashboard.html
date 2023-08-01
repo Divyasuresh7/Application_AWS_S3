@@ -91,6 +91,10 @@
             right: 10px;
             cursor: pointer;
         }
+        .template-button {
+            width: auto;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -139,33 +143,31 @@
             document.getElementById(selectedValue + "-content").style.display = "block";
             document.getElementById("template-button").style.display = selectedValue === "Select an option" ? "none" : "inline-block";
 
-            // Set the template in the popup
+            // Check if the template has already been set for this option
             var templateKey = "template_" + selectedValue;
             var template = localStorage.getItem(templateKey);
-            if (template) {
-                document.getElementById("popupTemplate").value = template;
+
+            if (!template && selectedValue !== "Select an option") {
+                // Redirect to the set-template page if the template is not set
+                window.location.href = "/set-template";
             }
         });
 
         document.getElementById("upload-button").addEventListener("click", function () {
-            var selectedOption = document.getElementById("dashboard-select").value;
-            var templateKey = "template_" + selectedOption;
+        var selectedOption = document.getElementById("dashboard-select").value;
+        var templateKey = "template_" + selectedOption;
 
-            // Checking if the template has already been set for this dropdown option
-            var template = localStorage.getItem(templateKey);
+        // Checking if the template has already been set for this dropdown option
+        var template = localStorage.getItem(templateKey);
 
-            if (!template) {
-                template = prompt("Enter the required template for the file upload.\nExample: USERNAME:string, PASSWORD:int");
+        if (!template) {
+            // If the template is not set, redirect to the "set-template" page
+            window.location.href = "/set-template";
+            return;
+        }
 
-                if (!template) {
-                    return; 
-                }
-                // Save the template in local storage
-                localStorage.setItem(templateKey, template);
-            }
-
-            document.getElementById("file-input").click();
-        });
+        document.getElementById("file-input").click();
+    });
 
         function openPopup() {
             var selectedValue = document.getElementById("dashboard-select").value;
