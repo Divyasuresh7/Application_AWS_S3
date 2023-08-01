@@ -63,6 +63,34 @@
         .dashboard-content {
             margin-top: 20px;
         }
+        .popup-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .popup-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -77,7 +105,8 @@
             </select>
         </div>
         <input type="file" id="file-input" style="display: none;">
-        <a href="#" class="upload-button" id="upload-button">Upload File</a>
+        <a href="#" class="upload-button" id="upload-button">Upload File</a> <br>
+        <button class="template-button" id="template-button" style="color: #0882c8; display: none;" onclick="openPopup()">View or Modify Template</button>
         <p id="upload-message" style="display: none; color: red;">Please check the file.</p>
         <p id="success-message" style="display: none; color: rgb(24, 184, 24);">File uploaded successfully</p>
         <p id="file-name" style="display: none; color: rgb(24, 184, 24);">Uploaded File: <span id="uploaded-file-name"></span></p>
@@ -90,8 +119,17 @@
             {% endfor %}
         </div>
     </div>
-
+    <div class="popup-container" id="popupContainer">
+        <div class="popup-content">
+            <span class="popup-close" onclick="closePopup()">&times;</span>
+            <h2 id="popupTitle">View or Modify Template</h2>
+            <textarea id="popupTemplate" rows="10" cols="50"></textarea>
+            <br>
+            <button onclick="modifyTemplate()">Save Changes</button>
+        </div>
+    </div>
     <script>
+        var templateButton = document.getElementById("template-button");
         document.getElementById("dashboard-select").addEventListener("change", function () {
             var selectedValue = this.value;
             var contentDivs = document.getElementsByClassName("dashboard-content");
@@ -99,6 +137,14 @@
                 contentDivs[i].style.display = "none";
             }
             document.getElementById(selectedValue + "-content").style.display = "block";
+            document.getElementById("template-button").style.display = selectedValue === "Select an option" ? "none" : "inline-block";
+
+            // Set the template in the popup
+            var templateKey = "template_" + selectedValue;
+            var template = localStorage.getItem(templateKey);
+            if (template) {
+                document.getElementById("popupTemplate").value = template;
+            }
         });
 
         document.getElementById("upload-button").addEventListener("click", function () {
@@ -109,7 +155,6 @@
             var template = localStorage.getItem(templateKey);
 
             if (!template) {
-                // Display the popup and take input from the user
                 template = prompt("Enter the required template for the file upload.\nExample: USERNAME:string, PASSWORD:int");
 
                 if (!template) {
@@ -121,6 +166,30 @@
 
             document.getElementById("file-input").click();
         });
+
+        function openPopup() {
+            var selectedValue = document.getElementById("dashboard-select").value;
+            var templateKey = "template_" + selectedValue;
+            var template = localStorage.getItem(templateKey);
+            if (template) {
+                document.getElementById("popupTemplate").value = template;
+            }
+            var popupContainer = document.getElementById("popupContainer");
+            popupContainer.style.display = "flex";
+        }
+
+        function closePopup() {
+            var popupContainer = document.getElementById("popupContainer");
+            popupContainer.style.display = "none";
+        }
+
+        function modifyTemplate() {
+            var selectedValue = document.getElementById("dashboard-select").value;
+            var templateKey = "template_" + selectedValue;
+            var popupTemplate = document.getElementById("popupTemplate").value;
+            localStorage.setItem(templateKey, popupTemplate);
+            closePopup();
+        }
 
         document.getElementById("file-input").addEventListener("change", function (event) {
             var file = event.target.files[0];
@@ -155,42 +224,38 @@
 
             reader.readAsText(file);
         });
-
-        function validateFileWithTemplate(contents, template) {
-        // Split the template into individual column and data type pairs
-        var templateColumns = template.split(',');
-
-        // Create a map to store the column names and their corresponding data types
-        var columnMap = new Map();
-
-        // Parse each column and data type pair and store them in the map
-        for (var i = 0; i < templateColumns.length; i++) {
-            var columnData = templateColumns[i].trim().split(':');
-            var columnName = columnData[0].trim();
-            var dataType = columnData[1].trim().toLowerCase(); // Convert data type to lowercase
-
-            // Store the column name and data type in the map
-            columnMap.set(columnName, dataType);
-        }
-
-        // Split the contents of the uploaded file into individual rows
-        var rows = contents.split('\n');
-
-        // Get the header row (first row) from the uploaded file
-        var headerRow = rows[0].split(',');
-
-        // Check if the columns in the header row match the template
-        for (var j = 0; j < headerRow.length; j++) {
-            var columnName = headerRow[j].trim();
-            var dataType = columnMap.get(columnName);
-
-            // If the column name is not present in the map or the data type doesn't match, return false
-            if (!dataType || (dataType !== 'string' && dataType !== 'int' && dataType !== 'float')) {
-                return false;
-            }
-        }
         
-        return true;
+        function validateFileWithTemplate(contents, template) {
+        // Split the template into an array of column name and data type pairs
+            var columns = template.split(",");
+            for (var i = 0; i < columns.length; i++) {
+                var column = columns[i].trim().split(":");
+                var columnName = column[0].trim();
+                var dataType = column[1].trim();
+
+                // Check if the column name exists in the contents
+                var pattern = new RegExp("\\b" + columnName + "\\b");
+                var match = contents.match(pattern);
+
+                // If the column name is not found or the data type does not match, return false
+                if (!match || !validateDataType(match[0], dataType)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function validateDataType(data, dataType) {
+        // Define regular expressions for each supported data type
+        var dataTypeRegex = {
+            "string": /^[\s\S]*$/,
+            "int": /^[+-]?\d+$/,
+            "float": /^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/
+            // Add more data types here if needed
+        };
+
+        // Check if the data matches the specified data type
+        return dataTypeRegex[dataType].test(data);
     }
 
         function uploadFileToServer(file, selectedOption) {
@@ -199,7 +264,7 @@
             formData.append('file', file);
             formData.append('selected_option', selectedOption);
 
-            // Send a POST request to the Flask server to handle the file upload
+            // Send a POST request to the server to handle the file upload
             fetch('/upload', {
                 method: 'POST',
                 body: formData
