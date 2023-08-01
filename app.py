@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template,session
+from flask import Flask, request, jsonify, render_template,session,redirect,url_for
 import os
 # from ldap3 import Server, Connection, ALL
 
@@ -48,8 +48,33 @@ def login():
 
 @app.route('/dashboard')
 def dashboard():
+    if request.method == 'POST':
+        selected_option = request.form.get('dashboard-select')
+
+        if selected_option:
+            session['selected_option'] = selected_option
+            return redirect(url_for('set-template'))
     folders = get_upload_folders()
     return render_template('dashboard.html', folders=folders)
+
+@app.route('/set-template', methods=['GET', 'POST'])
+def set_template():
+    if request.method == 'POST':
+        selected_option = request.form.get('selected_option')
+        template = request.form.get('template')
+
+        if not selected_option or not template:
+            return jsonify({'message': 'Invalid form data'}), 400
+
+        # Save the template in local storage or database
+        # For simplicity, we are using session to store the template here
+        session[selected_option] = template
+
+        # Redirect back to the dashboard after setting the template
+        return redirect(url_for('dashboard'))
+
+    # If it's a GET request, just render the set-template.html
+    return render_template('set-template.html')
 
 ALLOWED_EXTENSIONS = {'txt', 'csv', 'xlsx'}
 def allowed_file(filename):
