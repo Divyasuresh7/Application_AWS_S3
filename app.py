@@ -3,8 +3,6 @@ import os
 # from ldap3 import Server, Connection, ALL
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key_here'
-
 # AD_SERVER = ''
 # AD_PORT = 389  # The default LDAP port for AD is 389
 # AD_BASE_DN = 'DC=orient,DC=com'  
@@ -74,8 +72,7 @@ def upload():
     if file and allowed_file(file.filename):
         selected_option = request.form.get('selected_option')
 
-        folders = get_upload_folders()
-        if not selected_option or selected_option not in folders:
+        if not selected_option or selected_option not in get_upload_folders():
             return jsonify({'message': 'Invalid selected option'}), 400
 
         UPLOAD_FOLDER = "C:/Users/Divya Suresh/GITHUB_UPLOAD_PROJECTS/UPLOAD"
@@ -89,9 +86,5 @@ def upload():
     else:
         return jsonify({'message': 'Invalid file format. Allowed formats are txt, csv, and xlsx.'}), 400
     
-def get_upload_folders():
-    UPLOAD_FOLDER = "C:/Users/Divya Suresh/GITHUB_UPLOAD_PROJECTS/UPLOAD"
-    return [name for name in os.listdir(UPLOAD_FOLDER) if os.path.isdir(os.path.join(UPLOAD_FOLDER, name))]
-
 if __name__ == '__main__':
     app.run(debug=True)
